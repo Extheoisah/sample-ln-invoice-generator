@@ -27,7 +27,7 @@ This application demonstrates how to:
 
 ```bash
 git clone https://github.com/Extheoisah/sample-ln-invoice-generator.git
-cd lightning-invoice-app
+cd sample-ln-invoice-generator
 ```
 
 2. Install dependencies:
