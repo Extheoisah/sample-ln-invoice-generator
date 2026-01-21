@@ -15,7 +15,7 @@ This application demonstrates how to:
 
 ## Prerequisites
 
-- Node.js v18 or later
+- Node.js v18 or later, up to v22
 - Access to an LND node (we use [Polar](https://lightningpolar.com/) for development)
 - Access to a Bitcoin Core node
 - Basic understanding of TypeScript and React
@@ -29,14 +29,18 @@ This application demonstrates how to:
 git clone https://github.com/Extheoisah/sample-ln-invoice-generator.git
 cd sample-ln-invoice-generator
 ```
+2. (Optional) Set `node` version with `nvm`
+```bash
+nvm use
+```
 
-2. Install dependencies:
+3. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Configure your LND connection:
+4. Configure your LND connection:
 
    - Open `src/lib/lnd.ts`
    - Update the `DEFAULT_CONFIG` with your LND node's:
@@ -44,7 +48,7 @@ npm install
      - `tlsCertPath` location
      - `macaroonPath` location
 
-4. Configure your Bitcoin Core connection:
+5. Configure your Bitcoin Core connection:
 
    - Open `src/lib/bitcoin.ts`
    - Update the `DEFAULT_CONFIG` with your Bitcoin node's:
@@ -53,7 +57,7 @@ npm install
      - `username` and `password`
      - `network` type (mainnet/testnet)
 
-5. Start the development server:
+6. Start the development server:
 
 ```bash
 npm run dev
