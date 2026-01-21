@@ -20,6 +20,7 @@ import {
   RPC_PASSWORD,
   NETWORK,
   RPC_PORT,
+  BITCOIN_CLI_PATH,
 } from "@/config/process";
 
 const execAsync = promisify(exec);
@@ -44,7 +45,7 @@ export class BitcoinCLI {
   private buildBaseCommand(): string {
     const networkFlag =
       this.config.network === "mainnet" ? "" : `-${this.config.network}`;
-    return `bitcoin-cli ${networkFlag} -rpcconnect=${this.config.rpchost} -rpcuser=${this.config.rpcuser} -rpcpassword=${this.config.rpcpassword} -rpcport=${this.config.rpcport} -rpcwallet=extheoisah`;
+    return `${BITCOIN_CLI_PATH} ${networkFlag} -rpcconnect=${this.config.rpchost} -rpcuser=${this.config.rpcuser} -rpcpassword=${this.config.rpcpassword} -rpcport=${this.config.rpcport} -rpcwallet=extheoisah`;
   }
 
   private async executeCommand<T>(command: string): Promise<T> {
