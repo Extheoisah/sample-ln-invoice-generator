@@ -6,6 +6,7 @@ interface BitcoinCliConfig {
   rpcpassword: string;
   rpcport?: number;
   rpchost: string;
+  rpcwallet?: string;
 }
 interface BlockchainInfo {
   chain: string;

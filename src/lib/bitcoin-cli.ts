@@ -20,6 +20,7 @@ import {
   RPC_PASSWORD,
   NETWORK,
   RPC_PORT,
+  RPC_WALLET,
 } from "@/config/process";
 
 const execAsync = promisify(exec);
@@ -30,6 +31,7 @@ const DEFAULT_CONFIG: BitcoinCliConfig = {
   rpcpassword: RPC_PASSWORD,
   rpcport: Number(RPC_PORT),
   rpchost: RPC_HOST,
+  rpcwallet: RPC_WALLET,
 };
 
 export class BitcoinCLI {
@@ -44,7 +46,7 @@ export class BitcoinCLI {
   private buildBaseCommand(): string {
     const networkFlag =
       this.config.network === "mainnet" ? "" : `-${this.config.network}`;
-    return `bitcoin-cli ${networkFlag} -rpcconnect=${this.config.rpchost} -rpcuser=${this.config.rpcuser} -rpcpassword=${this.config.rpcpassword} -rpcport=${this.config.rpcport} -rpcwallet=extheoisah`;
+    return `bitcoin-cli ${networkFlag} -rpcconnect=${this.config.rpchost} -rpcuser=${this.config.rpcuser} -rpcpassword=${this.config.rpcpassword} -rpcport=${this.config.rpcport} -rpcwallet=${this.config.rpcwallet}`;
   }
 
   private async executeCommand<T>(command: string): Promise<T> {
@@ -54,7 +56,7 @@ export class BitcoinCLI {
         {
           maxBuffer: 10 * 1024 * 1024, // 10MB buffer
           timeout: 30000, // 30 second timeout
-        }
+        },
       );
       if (stderr) {
         throw new Error(stderr);
@@ -125,7 +127,7 @@ export class BitcoinCLI {
   }
 
   async getRawMempool(
-    verbose = false
+    verbose = false,
   ): Promise<string[] | Record<string, MempoolEntry>> {
     return this.executeCommand(`getrawmempool ${verbose}`);
   }
@@ -138,7 +140,7 @@ export class BitcoinCLI {
   async getRawTransaction(
     txid: string,
     verbosity?: 0 | 1 | 2,
-    blockhash?: string
+    blockhash?: string,
   ): Promise<TransactionInfo> {
     const command = blockhash
       ? `getrawtransaction ${txid} ${verbosity || 1} ${blockhash}`
@@ -148,7 +150,7 @@ export class BitcoinCLI {
 
   async decodeRawTransaction(hexstring: string): Promise<TransactionInfo> {
     return this.executeCommand<TransactionInfo>(
-      `decoderawtransaction ${hexstring}`
+      `decoderawtransaction ${hexstring}`,
     );
   }
 
@@ -164,7 +166,7 @@ export class BitcoinCLI {
   // Mining-related commands
   async generateToAddress(nblocks: number, address: string): Promise<string[]> {
     return this.executeCommand<string[]>(
-      `generatetoaddress ${nblocks} ${address}`
+      `generatetoaddress ${nblocks} ${address}`,
     );
   }
 
@@ -195,7 +197,7 @@ export class BitcoinCLI {
   // Wallet-related commands
   async getNewAddress(label = "", addressType = "bech32"): Promise<string> {
     return this.executeCommand<string>(
-      `getnewaddress "${label}" "${addressType}"`
+      `getnewaddress "${label}" "${addressType}"`,
     );
   }
 
@@ -206,16 +208,16 @@ export class BitcoinCLI {
   async sendToAddress(
     address: string,
     amount: number,
-    comment = ""
+    comment = "",
   ): Promise<string> {
     return this.executeCommand<string>(
-      `sendtoaddress ${address} ${amount} "${comment}"`
+      `sendtoaddress ${address} ${amount} "${comment}"`,
     );
   }
 
   async listUnspent(minconf = 1, maxconf = 9999999): Promise<UnspentOutput[]> {
     return this.executeCommand<UnspentOutput[]>(
-      `listunspent ${minconf} ${maxconf}`
+      `listunspent ${minconf} ${maxconf}`,
     );
   }
 
@@ -256,7 +258,7 @@ export class BitcoinCLI {
 
   async listReceivedByAddress(
     address: string,
-    minconf = 1
+    minconf = 1,
   ): Promise<
     Array<{
       address: string;
@@ -267,7 +269,7 @@ export class BitcoinCLI {
     }>
   > {
     return this.executeCommand(
-      `listreceivedbyaddress ${minconf} true true "${address}"`
+      `listreceivedbyaddress ${minconf} true true "${address}"`,
     );
   }
 
@@ -298,19 +300,20 @@ export class BitcoinCLI {
     return {
       ...addressInfo,
       balance: scanResult?.total_amount || 0,
-      unspent_txouts: scanResult.unspents.map((utxo) => ({
-        txid: utxo.txid,
-        vout: utxo.vout,
-        amount: utxo.amount,
-        height: utxo.height,
-      })) || [],
+      unspent_txouts:
+        scanResult.unspents.map((utxo) => ({
+          txid: utxo.txid,
+          vout: utxo.vout,
+          amount: utxo.amount,
+          height: utxo.height,
+        })) || [],
     };
   }
 
   async getAddressTransactions(
     txids: string[],
     page = 1,
-    pageSize = 10
+    pageSize = 10,
   ): Promise<{
     transactions: TransactionInfo[];
     total: number;
@@ -333,13 +336,15 @@ export class BitcoinCLI {
               console.error(`Failed to fetch transaction ${txid}:`, error);
               return null;
             }
-          })
+          }),
         );
-        
-        transactions.push(...batchResults.filter((tx): tx is TransactionInfo => tx !== null));
+
+        transactions.push(
+          ...batchResults.filter((tx): tx is TransactionInfo => tx !== null),
+        );
 
         if (i + batchSize < pageIds.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
       } catch (error) {
         console.error(`Failed to process batch starting at index ${i}:`, error);
